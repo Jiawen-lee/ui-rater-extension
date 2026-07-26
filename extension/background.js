@@ -9,7 +9,7 @@ async function ensureOffscreen() {
   });
   if (contexts.length === 0) {
     await chrome.offscreen.createDocument({
-      url: 'offscreen.html',
+      url: 'extension/offscreen.html',
       reasons: ['USER_MEDIA'],
       justification: 'Recording tab video for the study',
     });
@@ -110,7 +110,7 @@ async function beginTask(tab) {
     });
     if (!started) {
       try {
-        await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['content.js'] });
+        await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['extension/content.js'] });
         await sendToTab(tab.id, { type: 'START_TRACKING' });
       } catch { /* page may be uninjectable */ }
     }
@@ -201,7 +201,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         await chrome.storage.local.set({ _reviewing: true });
 
         await chrome.windows.create({
-          url: chrome.runtime.getURL('editor.html'),
+          url: chrome.runtime.getURL('extension/editor.html'),
           type: 'popup',
           width: 1100,
           height: 900,

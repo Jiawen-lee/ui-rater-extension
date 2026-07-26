@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ui-rater.dev/contracts/legacy-task-protocol-bindings/v1",
+  "title": "UI Rater legacy task protocol bindings",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "bindings"],
+  "properties": {
+    "schemaVersion": {"const": "legacy-task-protocol-bindings/v1"},
+    "bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "studyRevisionId",
+          "websiteArtifactId",
+          "websiteTaskId",
+          "taskProtocol",
+          "approvedBy",
+          "approvedAt"
+        ],
+        "properties": {
+          "studyRevisionId": {"type": "string"},
+          "websiteArtifactId": {"type": "string"},
+          "websiteTaskId": {"type": "string"},
+          "taskProtocol": {
+            "$ref": "https://ui-rater.dev/contracts/task-protocol/v1"
+          },
+          "approvedBy": {"type": "string", "minLength": 1},
+          "approvedAt": {"type": "string", "format": "date-time"}
+        }
+      }
+    }
+  }
+}

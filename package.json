@@ -1,0 +1,31 @@
+{
+  "name": "ui-rater-workspace",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "services/*",
+    "server"
+  ],
+  "devDependencies": {
+    "@types/node": "^20",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm --workspace server run lint",
+    "build": "npm --workspace server run build",
+    "test": "npm run test:contracts && npm run test:website && npm run test:collection && npm run test:manager && npm run test:architecture",
+    "test:contracts": "npm --workspace @ui-rater/contracts test",
+    "test:website": "npm --workspace @ui-rater/website-server run test",
+    "test:collection": "npm --workspace server test",
+    "test:manager": "npm --workspace @ui-rater/manager test",
+    "test:architecture": "node --test tests/architecture-boundaries.test.js",
+    "test:e2e": "node --import tsx --test tests/three-service.e2e.test.js tests/three-service-real.e2e.test.js",
+    "export:evidence": "sh scripts/run-python.sh scripts/export_evidence_bundle.py",
+    "dev:all": "node scripts/dev-all.mjs",
+    "dev:website": "node --import tsx services/website-server/src/server.ts",
+    "dev:manager": "node --import tsx services/manager/src/server.ts",
+    "manager:cli": "node --import tsx services/manager/src/cli.ts"
+  }
+}

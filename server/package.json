@@ -6,8 +6,9 @@
     "node": "^20.0.0 || ^22.0.0"
   },
   "scripts": {
-"dev": "next dev",
+    "dev": "next dev",
     "build": "next build",
+    "build:synthetic-websites": "node scripts/build-local-synthetic-websites.mjs",
     "start": "next start",
     "lint": "eslint"
   },

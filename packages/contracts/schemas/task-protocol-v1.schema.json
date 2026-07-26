@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ui-rater.dev/contracts/task-protocol/v1",
+  "title": "UI Rater TaskProtocol v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "taskProtocolId",
+    "taskSemanticDigest",
+    "prompt",
+    "startPath",
+    "timeoutMs",
+    "successOracle"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "task-protocol/v1"},
+    "taskProtocolId": {"type": "string", "pattern": "^taskp_[0-9a-f]{32}$"},
+    "taskSemanticDigest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "prompt": {"type": "string", "minLength": 1},
+    "startPath": {"type": "string", "pattern": "^/"},
+    "timeoutMs": {"type": "integer", "minimum": 1000},
+    "successOracle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "description"],
+      "properties": {
+        "kind": {"enum": ["server-state", "browser-state", "participant-report"]},
+        "description": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

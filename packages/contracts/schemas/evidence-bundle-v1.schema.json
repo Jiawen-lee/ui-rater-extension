@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ui-rater.dev/contracts/evidence-bundle/v1",
+  "title": "UI Rater EvidenceBundle v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "bundleId",
+    "studyRevisionId",
+    "assignmentId",
+    "attemptId",
+    "taskProtocolId",
+    "taskSemanticDigest",
+    "files"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "evidence-bundle/v1"},
+    "bundleId": {"type": "string", "pattern": "^evb_[0-9a-f]{32}$"},
+    "createdAt": {"type": "string", "format": "date-time"},
+    "studyRevisionId": {"$ref": "#/$defs/id"},
+    "assignmentId": {"$ref": "#/$defs/id"},
+    "attemptId": {"$ref": "#/$defs/id"},
+    "taskProtocolId": {"type": "string", "pattern": "^taskp_[0-9a-f]{32}$"},
+    "taskSemanticDigest": {"$ref": "#/$defs/digest"},
+    "files": {
+      "type": "array",
+      "minItems": 6,
+      "items": {"$ref": "#/$defs/fileRecord"}
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "fileRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "mediaType", "bytes", "sha256"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^(context|evidence)/[A-Za-z0-9._/-]+$"
+        },
+        "mediaType": {"type": "string", "minLength": 1},
+        "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/digest"}
+      }
+    }
+  }
+}

@@ -92,6 +92,9 @@
     .btn-row { display: flex; gap: 8px; }
     .btn-row .btn { flex: 1; }
     .setup-form { display: flex; flex-direction: column; gap: 12px; }
+    .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn-secondary { background: #e5e7eb; color: #111827; }
+    .btn-secondary:hover { background: #d1d5db; }
     .progress {
       font-size: 13px;
       color: #6b7280;
@@ -163,7 +166,14 @@
         <div class="section-label">Server URL</div>
         <input type="text" id="serverInput" placeholder="https://ui-rater-production.up.railway.app">
       </div>
-      <button class="btn btn-primary" id="startBtn">Load Tasks</button>
+      <div class="section">
+        <div class="section-label">Website Mode</div>
+        <div class="mode-grid">
+          <button class="btn btn-secondary" id="loadRealBtn">Real Webs</button>
+          <button class="btn btn-primary" id="loadSyntheticBtn">Synthetic Webs</button>
+        </div>
+        <div class="feedback-hint">Real webs use the configured live URLs. Synthetic webs ask the website service to host generated task pages.</div>
+      </div>
       <div class="error hidden" id="setupError"></div>
     </div>
   </div>

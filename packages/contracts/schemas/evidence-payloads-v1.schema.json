@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ui-rater.dev/contracts/evidence-payloads/v1",
+  "title": "UI Rater EvidenceBundle v1 payloads",
+  "$defs": {
+    "studyRevision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "studyRevisionId",
+        "studyRevisionDigest",
+        "websiteArtifactId",
+        "websiteArtifactDigest"
+      ],
+      "properties": {
+        "schemaVersion": {"const": "evidence-study-revision/v1"},
+        "studyRevisionId": {"type": "string"},
+        "studyRevisionDigest": {"type": "string"},
+        "websiteArtifactId": {"type": "string"},
+        "websiteAcquisitionId": {"type": ["string", "null"]},
+        "websiteArtifactDigest": {"type": "string"}
+      }
+    },
+    "taskAssignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "assignmentId",
+        "artifactTaskId",
+        "taskProtocolId",
+        "taskSemanticDigest",
+        "prompt",
+        "targetPath"
+      ],
+      "properties": {
+        "schemaVersion": {"const": "evidence-task-assignment/v1"},
+        "assignmentId": {"type": "string"},
+        "position": {"type": "integer", "minimum": 1},
+        "sourcePosition": {"type": ["integer", "null"], "minimum": 1},
+        "artifactTaskId": {"type": "string"},
+        "taskProtocolId": {"type": "string"},
+        "taskSemanticDigest": {"type": "string"},
+        "prompt": {"type": "string", "minLength": 1},
+        "targetPath": {"type": "string", "pattern": "^/"}
+      }
+    },
+    "attempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "attemptId",
+        "attemptNumber",
+        "status",
+        "outcome",
+        "method3Eligible"
+      ],
+      "properties": {
+        "schemaVersion": {"const": "evidence-attempt/v1"},
+        "attemptId": {"type": "string"},
+        "attemptNumber": {"type": "integer", "minimum": 1},
+        "status": {
+          "enum": ["accepted", "failed", "invalidated"]
+        },
+        "outcome": {
+          "enum": [
+            "succeeded",
+            "failed_retry",
+            "failed_no_retry",
+            "skipped",
+            "recording_problem"
+          ]
+        },
+        "outcomeAt": {"type": ["string", "null"]},
+        "method3Eligible": {"type": "boolean"},
+        "ineligibilityReason": {"type": ["string", "null"]}
+      }
+    },
+    "captureManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "clock",
+        "videoStartEpochMs",
+        "videoStopEpochMs",
+        "traceOriginEpochMs",
+        "traceToVideoOffsetMs",
+        "captureProfile"
+      ],
+      "properties": {
+        "schemaVersion": {"const": "evidence-capture/v1"},
+        "clock": {"const": "unix-epoch-ms"},
+        "videoStartEpochMs": {"type": "number"},
+        "videoStopEpochMs": {"type": "number"},
+        "traceOriginEpochMs": {"type": "number"},
+        "traceToVideoOffsetMs": {"type": "number"},
+        "startSource": {"type": ["string", "null"]},
+        "captureProfile": {"type": "object"}
+      }
+    },
+    "trace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "clock", "interactions"],
+      "properties": {
+        "schemaVersion": {"const": "evidence-trace/v1"},
+        "clock": {"const": "trace-relative-ms"},
+        "interactions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["seq", "ts", "kind"],
+            "properties": {
+              "seq": {"type": "integer", "minimum": 1},
+              "ts": {"type": "number", "minimum": 0},
+              "kind": {"type": "string"},
+              "url": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

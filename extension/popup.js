@@ -5,19 +5,21 @@ const $ = (id) => document.getElementById(id);
 let state = {
   participantId: '',
   serverUrl: DEFAULT_SERVER,
+  websiteMode: 'real',
   tasks: null,
   currentTaskIndex: 0,
 };
 
 async function init() {
   const data = await chrome.storage.local.get([
-    'participantId', 'serverUrl', 'tasks', 'currentTaskIndex',
+    'participantId', 'serverUrl', 'websiteMode', 'tasks', 'currentTaskIndex',
   ]);
 
   if (data.participantId && data.tasks) {
     state = {
       participantId: data.participantId,
       serverUrl: data.serverUrl || DEFAULT_SERVER,
+      websiteMode: data.websiteMode || 'real',
       tasks: data.tasks,
       currentTaskIndex: data.currentTaskIndex || 0,
     };
@@ -104,8 +106,7 @@ function showError(containerId, msg) {
   setTimeout(() => el.classList.add('hidden'), 5000);
 }
 
-// Load tasks from server
-$('startBtn').addEventListener('click', async () => {
+async function loadTasks(websiteMode) {
   const pid = $('participantInput').value.trim();
   const server = $('serverInput').value.trim() || DEFAULT_SERVER;
 
@@ -114,11 +115,16 @@ $('startBtn').addEventListener('click', async () => {
     return;
   }
 
-  $('startBtn').disabled = true;
-  $('startBtn').textContent = 'Loading…';
+  $('loadRealBtn').disabled = true;
+  $('loadSyntheticBtn').disabled = true;
+  const activeBtn = websiteMode === 'synthetic' ? $('loadSyntheticBtn') : $('loadRealBtn');
+  const originalText = activeBtn.textContent;
+  activeBtn.textContent = 'Loading…';
 
   try {
-    const res = await fetch(`${server}/api/tasks?participantId=${encodeURIComponent(pid)}`);
+    const res = await fetch(
+      `${server}/api/tasks?participantId=${encodeURIComponent(pid)}&websiteMode=${encodeURIComponent(websiteMode)}`
+    );
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || `Server returned ${res.status}`);
@@ -131,12 +137,14 @@ $('startBtn').addEventListener('click', async () => {
 
     state.participantId = pid;
     state.serverUrl = server;
+    state.websiteMode = websiteMode;
     state.tasks = data.tasks;
     state.currentTaskIndex = data.currentTaskIndex || 0;
 
     await chrome.storage.local.set({
       participantId: pid,
       serverUrl: server,
+      websiteMode,
       tasks: data.tasks,
       currentTaskIndex: state.currentTaskIndex,
     });
@@ -149,10 +157,15 @@ $('startBtn').addEventListener('click', async () => {
   } catch (err) {
     showError('setupError', err.message);
   } finally {
-    $('startBtn').disabled = false;
-    $('startBtn').textContent = 'Load Tasks';
+    $('loadRealBtn').disabled = false;
+    $('loadSyntheticBtn').disabled = false;
+    activeBtn.textContent = originalText;
   }
-});
+}
+
+// Load tasks from server
+$('loadRealBtn').addEventListener('click', () => { void loadTasks('real'); });
+$('loadSyntheticBtn').addEventListener('click', () => { void loadTasks('synthetic'); });
 
 // Begin task — the background captures the current tab (this popup click is the
 // activeTab invocation) and opens the task site. The on-page panel takes over.
@@ -263,7 +276,7 @@ $('skipBtn').addEventListener('click', async () => {
 // Reset (shared logic for both reset buttons)
 async function resetStudy() {
   await chrome.storage.local.remove([
-    'participantId', 'tasks', 'currentTaskIndex',
+    'participantId', 'websiteMode', 'tasks', 'currentTaskIndex',
     '_tracking', '_originTime', '_viewStart', '_durationMs', '_snapshotInteractions',
   ]);
   chrome.runtime.sendMessage({ type: 'CLEAR_INTERACTIONS' });
