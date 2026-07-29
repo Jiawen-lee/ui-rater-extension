@@ -8,6 +8,8 @@ const serverDir = path.basename(cwd) === 'server' ? cwd : path.join(cwd, 'server
 const repoDataDir = path.resolve(serverDir, '..', 'data');
 const localDataDir = path.join(cwd, 'data');
 
+export const SERVER_DIR = serverDir;
+export const SERVER_DATA_DIR = path.join(serverDir, 'data');
 export const DATA_DIR = fs.existsSync(repoDataDir) || !fs.existsSync(localDataDir)
   ? repoDataDir
   : localDataDir;

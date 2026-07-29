@@ -20,14 +20,31 @@ function isMind2Web(task: Record<string, unknown>, sidecar: Set<string>): boolea
   return metadata || sidecar.has(normalizePrompt(String(task.task_prompt ?? '')));
 }
 
-export async function loadCandidateFromDirectory(sourceDirInput: string, taskFileInput?: string, source: Record<string, unknown> = { kind: 'local' }) {
+async function isRunnableDirectory(dirPath: string): Promise<boolean> {
+  return Boolean((await fs.stat(path.join(dirPath, 'dist', 'index.html')).catch(() => undefined))?.isFile());
+}
+
+async function resolveSourceDirectory(sourceDirInput: string): Promise<string> {
   const sourceDir = path.resolve(assertString(sourceDirInput, 'source.path', 4_000));
   const stat = await fs.stat(sourceDir).catch(() => undefined);
   if (!stat?.isDirectory()) throw new Error(`Website source directory does not exist: ${sourceDir}`);
-  const dist = path.join(sourceDir, 'dist');
-  if (!(await fs.stat(path.join(dist, 'index.html')).catch(() => undefined))?.isFile()) {
-    throw new Error(`Website source has no dist/index.html: ${sourceDir}`);
+  if (await isRunnableDirectory(sourceDir)) return sourceDir;
+
+  const children = await fs.readdir(sourceDir, { withFileTypes: true }).catch(() => []);
+  const matches: string[] = [];
+  for (const child of children) {
+    if (!child.isDirectory()) continue;
+    const candidate = path.join(sourceDir, child.name);
+    if (await isRunnableDirectory(candidate)) matches.push(candidate);
   }
+  matches.sort((a, b) => path.basename(b).localeCompare(path.basename(a)));
+  if (matches[0]) return matches[0];
+
+  throw new Error(`Website source has no dist/index.html: ${sourceDir}`);
+}
+
+export async function loadCandidateFromDirectory(sourceDirInput: string, taskFileInput?: string, source: Record<string, unknown> = { kind: 'local' }) {
+  const sourceDir = await resolveSourceDirectory(sourceDirInput);
   const taskFile = path.resolve(taskFileInput ? taskFileInput : path.join(sourceDir, 'trials-config.json'));
   const parsed = JSON.parse(await fs.readFile(taskFile, 'utf8'));
   const rawTasks = Array.isArray(parsed) ? parsed : parsed?.tasks;

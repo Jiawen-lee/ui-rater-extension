@@ -68,6 +68,7 @@ export interface TrialConfigEntry {
   plain_app: string;
   task_prompt: string;
   site_url?: string;
+  start_path?: string;
   defects: { app: string; principle: string; defect_descriptions: string[] }[];
   suggested_flows: string[];
 }
